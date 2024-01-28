@@ -47,7 +47,7 @@ public_users.get('/author/:author', function (req, res) {
   }
   const booksByAuthor = []
   for (index in books) {
-    if (books[index].author.replaceAll(' ', '').toLowerCase() === author.toLowerCase()) {
+    if (books[index].author.replaceAll(' ', '').toLowerCase() === author.toLowerCase().replaceAll(' ', '')) {
       booksByAuthor.push(books[index]);
     }
   }
@@ -66,7 +66,7 @@ public_users.get('/title/:title', function (req, res) {
   }
   const booksWithTitle = [];
   for (index in books) {
-    if (books[index].title.replaceAll(' ', '').toLowerCase() === title.toLowerCase()) {
+    if (books[index].title.replaceAll(' ', '').toLowerCase() === title.toLowerCase().replaceAll(' ', '')) {
       booksWithTitle.push(books[index]);
     }
   }
