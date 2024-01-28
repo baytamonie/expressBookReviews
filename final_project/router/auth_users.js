@@ -7,7 +7,7 @@ let users = [];
 
 const isValid = (username) => { 
   const found = users.filter(user => {
-    user.username === username;
+    return user.username === username;
   })
   if(found.length > 0){
     return false;
@@ -17,7 +17,7 @@ const isValid = (username) => {
 
 const authenticatedUser = (username,password)=>{  
    const found = users.filter(user => {
-   user.username === username && user.password === password;
+   return user.username === username && user.password === password;
 })
   if(found.length > 0){
   return true;
@@ -26,7 +26,7 @@ const authenticatedUser = (username,password)=>{
 }
 //only registered users can login
 regd_users.post("/login", (req,res) => {
-  const { username, password } = req.body
+  const { username, password } = req.body;
   if(!username || !password){
     return res.status(404).json({message: "Error logging in"});
   }
@@ -45,10 +45,42 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const { isbn } = req.params;
+  if(!isbn){
+    return res.status(400).json({message: "Unable to look for book."});
+  }
+  const book = books[isbn]
+  if(!book){
+    return res.status(404).json({message: "Book not found."});
+  }
+  const username = req.session.authorization.username
+  const { review } = req.query
+  if(!review){
+    return res.status(400).json({message: "Unable to add review."});
+  }
+  if(!book.review){
+    book.review = {}
+  }
+  book.review[username] = review
+  books[isbn] = book
+  return res.status(200).send("Review added.");
 });
 
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const { isbn } = req.params;
+  if(!isbn){
+    return res.status(400).json({message: "Unable to look for book."});
+  }
+  const book = books[isbn]
+  if(!book){
+    return res.status(404).json({message: "Book not found."});
+  }
+  const username = req.session.authorization.username
+  if(books[isbn].review){
+    books[isbn].review[username] = undefined
+  }
+  return res.status(200).send("Review deleted.");
+});
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
